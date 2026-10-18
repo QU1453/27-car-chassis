@@ -46,7 +46,7 @@
 - `Hardware` 分组与 `../Hardware` 头文件路径**重新生成后仍在**，无需重加。
 - Keil 编译 0 Error / 0 Warning，Code=9006 RO=2194 RW=16 ZI=2520。
 - 两点遗留（不影响先跑）：① PB13/PB15 生成成 `GPIO_NOPULL` + `SPEED_FREQ_LOW`，厂家例程是 PULLUP + HIGH，10.6MHz 下裕量偏小；② 四个 LCD 脚没打 User Label，`main.h` 无 `LCD_*_Pin` 宏，靠 `lcd_port.h` 的 `#ifndef` 兜底，数值一致。
-- **注意**：本次把 FDCAN1 也一起删了，当前工程没有任何 CAN。后面接 M2006/C610 前需重新勾 FDCAN1（PA11/PA12，与 LCD 引脚不冲突）。
+- **注意**：本次把 FDCAN1 也一起删了，当前工程没有任何 CAN。后面接 M2006/C610 前需重新勾 FDCAN1（PA11/PA12，与 LCD 引脚不冲突）。→ **已重新勾选**，生成了 `Core/Src/fdcan.c`、`Core/Inc/fdcan.h`。
 - **已修**：链接报 105 条 `L6406E`（可用存储区全为 0）。本工程有**两条互不相干的构建路径**，要分别填内存区：
   - Keil uVision 走 `MDK-ARM/car_dipan.uvprojx`：`IROM=0x8000000/0x80000`、`IRAM=0x20000000/0x20000`、`OCR_RVCT4`=ROM 值、`OCR_RVCT9`=RAM 值、`Ir2Chk=0`（RVCT4/RVCT9 不能写反）。
   - **EIDE 插件**（Trae 里点 Build 走这条）走 `MDK-ARM/.eide/eide.yml`，**完全不读 uvprojx**：其 `storageLayout` 的 IROM1/IRAM1 原是空串、还多勾了一个空 IROM2，于是生成的 `build/car_dipan/car_dipan.sct` 里全是 `0x0/0x0`。已填 `0x8000000/0x80000`、`0x20000000/0x20000`，IROM2 取消勾选。
@@ -68,3 +68,14 @@
 1. 删除 `Hardware/` 整个目录
 2. 删掉 `main.c` 中 USER CODE 两处新增
 3. `.uvprojx` 删 `Hardware` 分组 + IncludePath 去掉 `../Hardware`
+
+---
+
+## 2026-10-18　上传 GitHub（QU1453/27-car-chassis）
+
+- 仓库：https://github.com/QU1453/27-car-chassis ，**公开**。简介写中文「27电赛小车底盘 / STM32G473VET6 + 2×M2006/C610 + ST7789」。
+  **GitHub 仓库名只允许 ASCII**（字母/数字/`-`/`_`/`.`），原名「27电赛小车地盘」建不出来，只能放简介。
+- 新增 `.gitignore`：排除 `MDK-ARM/build`、`MDK-ARM/car_dipan`（uVision 输出）、`MDK-ARM/.cmsis`（EIDE 包缓存）、`MDK-ARM/RTE`、`*.o/.d/.crf/.axf/.hex/.map` 等；入库 117 个源文件。
+- 本机执行 `git init -b main` → 首个提交 `16a453f` → 推送到 `origin/main` 并设 upstream。
+- 环境备注：本机**没有 `gh` CLI**；TRAE 的 GitHub 集成令牌只读（建仓报 403），建仓靠网页手动完成，推送用该令牌走 `http.extraHeader` 认证，令牌不落盘。
+
